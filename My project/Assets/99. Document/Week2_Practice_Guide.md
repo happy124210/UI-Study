@@ -134,16 +134,25 @@ ContentSizeFitter의 동작 원리를 직접 확인하고, 텍스트에 맞춰 �
 ```
 TestBox (ContentSizeFitter)
 └── Text (TextMeshPro)
-    └── 패딩은 Text의 Margin으로 처리
+    └── 여백은 RectTransform의 offset으로 처리
 ```
 
 #### Step 7: 올바른 구조로 재설정
 
+**올바른 여백 처리 방법**:
+- ❌ **잘못된 방법**: TextMeshPro의 Margin 사용
+- ✅ **올바른 방법**: RectTransform의 Left/Right/Top/Bottom offset 사용
+
 1. `Text`의 RectTransform:
    - Anchor Preset: **Stretch-Stretch**
-   - Left, Right, Top, Bottom: 모두 `0`
+   - Left: `10`, Right: `10`, Top: `10`, Bottom: `10` (여백 설정)
+
 2. `Text`의 TextMeshPro 설정:
-   - Margins: Left=10, Top=10, Right=10, Bottom=10
+   - Text: "안녕하세요"
+   - Font Size: 24
+   - Alignment: Center, Middle
+   - Wrapping: Enabled
+   - **Margins**: 사용하지 않음 (0으로 유지)
 
 3. `TestBox`의 ContentSizeFitter:
    - Horizontal Fit: `Preferred Size`
@@ -153,6 +162,11 @@ TestBox (ContentSizeFitter)
 
 **관찰**:
 - 텍스트 길이에 맞춰 박스 크기가 자동 조절됨!
+- 여백은 RectTransform offset으로 일정하게 유지됨
+
+**실무 팁**:
+> TextMeshPro의 Margin은 텍스트 렌더링 영역을 제한할 뿐, Layout 시스템과는 무관합니다.
+> UI 여백은 항상 **RectTransform의 offset** 또는 **부모의 Layout Group Padding**으로 처리하세요!
 
 ### 검증
 
@@ -724,15 +738,16 @@ public class ItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 1. `DialogueBubble` 하위에 `Text - TextMeshPro` 생성 → 이름: `DialogueText`
 2. RectTransform:
    - Anchor Preset: **Stretch-Stretch**
-   - Left, Right, Top, Bottom: 모두 `0`
+   - Left: `15`, Right: `15`, Top: `10`, Bottom: `10` (여백 설정)
 3. TextMeshPro 설정:
    - Text: "안녕하세요!"
    - Font Size: 20
    - Color: 검정
    - Alignment: Left, Top
-   - **Margins**: Left=15, Top=10, Right=15, Bottom=10
    - **Wrapping**: Enabled
    - Overflow: Overflow
+
+**실무 팁**: 텍스트와 테두리 사이의 여백은 TextMeshPro의 Margin이 아닌 **RectTransform의 offset**으로 처리합니다!
 
 #### Step 3: 말풍선 몸통에 ContentSizeFitter 추가
 
@@ -1293,7 +1308,7 @@ DialogueBubble
 │       └── Min Width: 80
 │
 ├── DialogueText (TextMeshPro)
-│   ├── Margins: 15, 10, 15, 10
+│   ├── RectTransform: Left=15, Right=15, Top=10, Bottom=10 (여백)
 │   ├── Wrapping: Enabled
 │   └── Overflow: Overflow
 │
